@@ -35,17 +35,19 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
-    public String updateUserName(@PathVariable Long id, @RequestBody String newName) {
+    public String updateClient(@PathVariable Long id, @RequestBody Client newData) {
         var clientBox = clientRepository.findById(id);
         if (clientBox.isEmpty()) {
             return "Client not found";
         }
 
         Client client = clientBox.get();
-        client.setName(newName);
+        client.setName(newData.getName());
+        client.setAddress(newData.getAddress());
+
         clientRepository.save(client);
 
-        return "User with ID " + id + " updated with name " + newName;
+        return "User with ID " + id + " updated successfully!";
     }
 
 
