@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 public class ClientController {
 
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
 
     public ClientController(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
@@ -36,12 +36,12 @@ public class ClientController {
 
     @PutMapping("/{id}")
     public String updateClient(@PathVariable Long id, @RequestBody Client newData) {
-        var clientBox = clientRepository.findById(id);
-        if (clientBox.isEmpty()) {
+        var clientEntity = clientRepository.findById(id);
+        if (clientEntity.isEmpty()) {
             return "Client not found";
         }
 
-        Client client = clientBox.get();
+        Client client = clientEntity.get();
         client.setName(newData.getName());
         client.setAddress(newData.getAddress());
 
