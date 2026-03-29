@@ -42,12 +42,12 @@ public class Order {
         return id;
     }
 
-    public LocalDateTime getNow() {
-        return now;
+    public LocalDateTime getOrderAt() {
+        return orderAt;
     }
 
-    public void setNow(LocalDateTime now) {
-        this.now = now;
+    public void setOrderAt(LocalDateTime now) {
+        this.orderAt = now;
     }
 
     public Client getClient() {
