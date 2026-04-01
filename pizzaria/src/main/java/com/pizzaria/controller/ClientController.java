@@ -2,6 +2,9 @@ package com.pizzaria.controller;
 
 import com.pizzaria.model.Client;
 import com.pizzaria.repository.ClientRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +29,18 @@ public class ClientController {
     @GetMapping
     public List<Client> getClients() {
         return clientRepository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Client> getClientById(@PathVariable Long id) {
+        var clientEntity = clientRepository.findById(id);
+
+        if (clientEntity.isEmpty()) {
+            // esse negocio é legal pra caramba ne
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Client client = clientEntity.get();
+        return ResponseEntity.ok(client);
     }
 
     @DeleteMapping("/{id}")
