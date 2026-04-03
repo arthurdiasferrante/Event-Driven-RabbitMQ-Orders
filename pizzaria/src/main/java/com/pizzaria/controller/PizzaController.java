@@ -2,6 +2,8 @@
 
     import com.pizzaria.model.Pizza;
     import com.pizzaria.repository.PizzaRepository;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
 
     import java.util.List;
@@ -17,13 +19,14 @@
         }
 
         @PostMapping
-        public Pizza newPizza(@RequestBody Pizza pizza) {
-            return pizzaRepository.save(pizza);
+        public ResponseEntity<Pizza> newPizza(@RequestBody Pizza pizza) {
+            Pizza newPizza = pizzaRepository.save(pizza);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newPizza);
         }
 
         @GetMapping
-        public List<Pizza> getPizzas() {
-            return pizzaRepository.findAll();
+        public ResponseEntity<List<Pizza>> getPizzas() {
+            return ResponseEntity.ok(pizzaRepository.findAll());
         }
 
     //    @GetMapping
@@ -37,10 +40,10 @@
 
 
         @PutMapping("/{id}")
-        public String updatePizza(@PathVariable Long id, @RequestBody Pizza newData) {
+        public ResponseEntity<Pizza> updatePizza(@PathVariable Long id, @RequestBody Pizza newData) {
             var pizzaEntity = pizzaRepository.findById(id);
             if (pizzaEntity.isEmpty()) {
-                return "Pizza not found";
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
             Pizza pizza = pizzaEntity.get();
@@ -48,19 +51,18 @@
             pizza.setIngredients(newData.getIngredients());
             pizza.setImageUrl(newData.getImageUrl());
 
-            pizzaRepository.save(pizza);
-            return "Pizza ID: {" + pizza.getId() + "} updated successfully";
+            Pizza newPizza = pizzaRepository.save(pizza);
+
+            return ResponseEntity.ok(newPizza);
         }
 
         @DeleteMapping("/{id}")
-        public String deletePizza(@PathVariable Long id) {
+        public ResponseEntity<Void> deletePizza(@PathVariable Long id) {
             var pizzaEntity = pizzaRepository.findById(id);
             if (pizzaEntity.isEmpty()) {
-                return  "Pizza not found";
+                return  ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            Pizza pizza = pizzaEntity.get();
-            String msg = "Pizza " + pizza.getName() + " deleted successfully";
             pizzaRepository.deleteById(id);
-            return msg;
+            return ResponseEntity.noContent().build();
         }
     }

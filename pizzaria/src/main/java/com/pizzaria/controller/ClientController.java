@@ -22,13 +22,14 @@ public class ClientController {
     }
 
     @PostMapping
-    public Client saveClient(@RequestBody Client client) {
-        return clientRepository.save(client);
+    public ResponseEntity<Client> saveClient(@RequestBody Client client) {
+        Client newClient = clientRepository.save(client);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newClient);
     }
 
     @GetMapping
-    public List<Client> getClients() {
-        return clientRepository.findAll();
+    public ResponseEntity<List<Client>> getClients() {
+        return ResponseEntity.ok(clientRepository.findAll());
     }
 
     @GetMapping("/{id}")
@@ -36,7 +37,6 @@ public class ClientController {
         var clientEntity = clientRepository.findById(id);
 
         if (clientEntity.isEmpty()) {
-            // esse negocio é legal pra caramba ne
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         Client client = clientEntity.get();
@@ -44,25 +44,29 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteClient(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
+        var clientEntity = clientRepository.findById(id);
+        if (clientEntity.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         clientRepository.deleteById(id);
-        return "Client " + id + " Deleted";
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public String updateClient(@PathVariable Long id, @RequestBody Client newData) {
+    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client newData) {
         var clientEntity = clientRepository.findById(id);
         if (clientEntity.isEmpty()) {
-            return "Client not found";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        Client client = clientEntity.get();
-        client.setName(newData.getName());
-        client.setAddress(newData.getAddress());
+        Client newClient = clientEntity.get();
+        newClient.setName(newData.getName());
+        newClient.setAddress(newData.getAddress());
 
-        clientRepository.save(client);
+        clientRepository.save(newClient);
 
-        return "User with ID " + id + " updated successfully!";
+        return ResponseEntity.ok(newClient);
     }
 
 

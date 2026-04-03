@@ -20,13 +20,15 @@
         }
 
         @PostMapping
-        public Order createOrder(@RequestBody Order order) {
-            return orderRepository.save(order);
+        public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+            Order newOrder = orderRepository.save(order);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
         }
 
+
         @GetMapping
-        public List<Order> getOrders() {
-            return orderRepository.findAll();
+        public ResponseEntity<List<Order>> getOrders() {
+            return ResponseEntity.ok(orderRepository.findAll());
         }
 
         @GetMapping("/{id}")
