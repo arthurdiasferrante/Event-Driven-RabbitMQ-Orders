@@ -40,23 +40,14 @@
 
         @PutMapping("/{id}")
         public ResponseEntity<Order> updateOrder(@RequestBody Order newOrder, @PathVariable Long id) {
-            orderService.updateOrder(newOrder, id);
-
-            Order updatedOrder = orderEntity.get();
-            updatedOrder.setPizzas(newOrder.getPizzas());
-            orderRepository.save(updatedOrder);
-
+            Order updatedOrder = orderService.updateOrder(newOrder, id);
             return ResponseEntity.ok(updatedOrder);
         }
 
         @DeleteMapping("/{id}")
         public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-            var orderEntity = orderRepository.findById(id);
-            if (orderEntity.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
+            orderService.deleteOrder(id);
 
-            orderRepository.deleteById(id);
             return ResponseEntity.noContent().build();
         }
 

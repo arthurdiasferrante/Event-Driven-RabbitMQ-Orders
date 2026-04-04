@@ -33,8 +33,15 @@ public class OrderService {
     }
 
     public Order updateOrder(Order orderBody, Long id) {
-        var orderEntity = orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
+        Order orderEntity = orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
+
+        orderEntity.setPizzas(orderBody.getPizzas());
+        return orderRepository.save(orderEntity);
     }
 
+    public void deleteOrder(Long id) {
+        Order orderEntity = orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
 
+        orderRepository.delete(orderEntity);
+    }
 }
