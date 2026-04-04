@@ -19,7 +19,7 @@
         }
 
         @PostMapping
-        public ResponseEntity<Pizza> newPizza(@RequestBody Pizza pizza) {
+        public ResponseEntity<Pizza> createPizza(@RequestBody Pizza pizza) {
             Pizza newPizza = pizzaRepository.save(pizza);
             return ResponseEntity.status(HttpStatus.CREATED).body(newPizza);
         }

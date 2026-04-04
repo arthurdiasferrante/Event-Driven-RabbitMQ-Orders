@@ -2,6 +2,7 @@ package com.pizzaria.controller;
 
 import com.pizzaria.model.Client;
 import com.pizzaria.repository.ClientRepository;
+import com.pizzaria.service.ClientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -15,59 +16,39 @@ import java.util.List;
 @RestController
 public class ClientController {
 
-    private final ClientRepository clientRepository;
+    private ClientService clientService;
 
-    public ClientController(ClientRepository clientRepository) {
-        this.clientRepository = clientRepository;
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
     }
 
     @PostMapping
-    public ResponseEntity<Client> saveClient(@RequestBody Client client) {
-        Client newClient = clientRepository.save(client);
+    public ResponseEntity<Client> createClient(@RequestBody Client client) {
+        Client newClient = clientService.createClient(client);
         return ResponseEntity.status(HttpStatus.CREATED).body(newClient);
     }
 
     @GetMapping
     public ResponseEntity<List<Client>> getClients() {
-        return ResponseEntity.ok(clientRepository.findAll());
+        return ResponseEntity.ok(clientService.getClients());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Client> getClientById(@PathVariable Long id) {
-        var clientEntity = clientRepository.findById(id);
-
-        if (clientEntity.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        Client client = clientEntity.get();
+        Client client = clientService.getClientById(id);
         return ResponseEntity.ok(client);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        var clientEntity = clientRepository.findById(id);
-        if (clientEntity.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        clientRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client newData) {
-        var clientEntity = clientRepository.findById(id);
-        if (clientEntity.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        Client newClient = clientEntity.get();
-        newClient.setName(newData.getName());
-        newClient.setAddress(newData.getAddress());
-
-        clientRepository.save(newClient);
-
-        return ResponseEntity.ok(newClient);
+        Client updatedClient = clientService.updateClient(newData, id);
+        return ResponseEntity.ok(updatedClient);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
+        clientService.deleteClient(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }

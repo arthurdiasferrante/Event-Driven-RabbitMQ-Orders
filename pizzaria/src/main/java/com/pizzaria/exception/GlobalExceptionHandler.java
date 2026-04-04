@@ -13,4 +13,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleOrderNotFound(OrderNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @ExceptionHandler(ClientNotFoundException.class)
+    public ResponseEntity<Void> handleClientNotFound(ClientNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 }
