@@ -1,5 +1,6 @@
 package com.pizzaria.service;
 
+import com.pizzaria.exception.PizzaNotFoundException;
 import com.pizzaria.model.Pizza;
 import com.pizzaria.repository.PizzaRepository;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,26 @@ public class PizzaService {
         return pizzaRepository.findAll();
     }
 
-    public Pizza updatePizza(Long id, Pizza pizzaBody) {
-        Pizza pizzaEntity = pizzaRepository.findById(id)
-                .orElseThrow(() -> new )
+    public Pizza getPizzaById(Long id) {
+        return pizzaRepository.findById(id)
+                .orElseThrow(() -> new PizzaNotFoundException("Pizza não encontrada com ID " + id));
     }
 
+    public Pizza updatePizza(Long id, Pizza pizzaBody) {
+        Pizza pizzaEntity = pizzaRepository.findById(id)
+                .orElseThrow(() -> new PizzaNotFoundException("Pizza não encontrada com ID " + id));
+
+        pizzaEntity.setName(pizzaBody.getName());
+        pizzaEntity.setIngredients(pizzaBody.getIngredients());
+        pizzaEntity.setImageUrl(pizzaBody.getImageUrl());
+
+        return pizzaRepository.save(pizzaEntity);
+    }
+
+    public void deletePizza(Long id) {
+        Pizza pizzaEntity = pizzaRepository.findById(id)
+                .orElseThrow(() -> new PizzaNotFoundException("Pizza não encontrada com ID " + id));
+
+        pizzaRepository.delete(pizzaEntity);
+    }
 }

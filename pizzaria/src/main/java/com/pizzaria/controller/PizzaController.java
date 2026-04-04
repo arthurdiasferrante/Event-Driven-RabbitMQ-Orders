@@ -28,7 +28,12 @@
 
         @GetMapping
         public ResponseEntity<List<Pizza>> getPizzas() {
-            return ResponseEntity.ok(pizzaRepository.findAll());
+            return ResponseEntity.ok(pizzaService.getPizzas());
+        }
+
+        @GetMapping("/{id}")
+        public ResponseEntity<Pizza> getPizzaById(@PathVariable Long id) {
+            return ResponseEntity.ok(pizzaService.getPizzaById(id));
         }
 
     //    @GetMapping
@@ -43,28 +48,13 @@
 
         @PutMapping("/{id}")
         public ResponseEntity<Pizza> updatePizza(@PathVariable Long id, @RequestBody Pizza newData) {
-            var pizzaEntity = pizzaRepository.findById(id);
-            if (pizzaEntity.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-
-            Pizza pizza = pizzaEntity.get();
-            pizza.setName(newData.getName());
-            pizza.setIngredients(newData.getIngredients());
-            pizza.setImageUrl(newData.getImageUrl());
-
-            Pizza newPizza = pizzaRepository.save(pizza);
-
-            return ResponseEntity.ok(newPizza);
+            Pizza pizza = pizzaService.updatePizza(id, newData);
+            return ResponseEntity.ok(pizza);
         }
 
         @DeleteMapping("/{id}")
         public ResponseEntity<Void> deletePizza(@PathVariable Long id) {
-            var pizzaEntity = pizzaRepository.findById(id);
-            if (pizzaEntity.isEmpty()) {
-                return  ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            pizzaRepository.deleteById(id);
+            pizzaService.deletePizza(id);
             return ResponseEntity.noContent().build();
         }
     }
