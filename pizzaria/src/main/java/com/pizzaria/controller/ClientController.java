@@ -1,5 +1,7 @@
 package com.pizzaria.controller;
 
+import com.pizzaria.dto.ClientRequestDTO;
+import com.pizzaria.dto.ClientResponseDTO;
 import com.pizzaria.model.Client;
 import com.pizzaria.repository.ClientRepository;
 import com.pizzaria.service.ClientService;
@@ -23,9 +25,9 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<Client> createClient(@RequestBody Client client) {
-        Client newClient = clientService.createClient(client);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newClient);
+    public ResponseEntity<ClientResponseDTO> createClient(@RequestBody ClientRequestDTO requestDTO) {
+        ClientResponseDTO responseDTO = clientService.createClient(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @GetMapping
