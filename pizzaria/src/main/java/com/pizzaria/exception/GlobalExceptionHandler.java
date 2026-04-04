@@ -18,4 +18,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleClientNotFound(ClientNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @ExceptionHandler(PizzaNotFoundException.class)
+    public ResponseEntity<Void> handlePizzaNotFound(PizzaNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 }

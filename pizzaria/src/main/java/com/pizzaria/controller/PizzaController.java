@@ -2,6 +2,7 @@
 
     import com.pizzaria.model.Pizza;
     import com.pizzaria.repository.PizzaRepository;
+    import com.pizzaria.service.PizzaService;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
@@ -12,15 +13,16 @@
     @RestController
     public class PizzaController {
 
-        private PizzaRepository pizzaRepository;
+        private final PizzaService pizzaService;
 
-        public PizzaController(PizzaRepository pizzaRepository) {
-            this.pizzaRepository = pizzaRepository;
+        public PizzaController(PizzaService pizzaService) {
+            this.pizzaService = pizzaService;
         }
 
         @PostMapping
         public ResponseEntity<Pizza> createPizza(@RequestBody Pizza pizza) {
-            Pizza newPizza = pizzaRepository.save(pizza);
+            Pizza newPizza = pizzaService.createPizza(pizza);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(newPizza);
         }
 
