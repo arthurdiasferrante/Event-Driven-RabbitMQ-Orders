@@ -42,20 +42,24 @@ public class PizzaService {
         return pizzaResponseDTOList;
     }
 
-    public Pizza getPizzaById(Long id) {
-        return pizzaRepository.findById(id)
-                .orElseThrow(() -> new PizzaNotFoundException("Pizza não encontrada com ID " + id));
-    }
-
-    public Pizza updatePizza(Long id, Pizza pizzaBody) {
+    public PizzaResponseDTO getPizzaById(Long id) {
         Pizza pizzaEntity = pizzaRepository.findById(id)
                 .orElseThrow(() -> new PizzaNotFoundException("Pizza não encontrada com ID " + id));
 
-        pizzaEntity.setName(pizzaBody.getName());
-        pizzaEntity.setIngredients(pizzaBody.getIngredients());
-        pizzaEntity.setImageUrl(pizzaBody.getImageUrl());
+        return new PizzaResponseDTO(pizzaEntity.getId(), pizzaEntity.getName(), pizzaEntity.getIngredients(), pizzaEntity.getImageUrl());
+    }
 
-        return pizzaRepository.save(pizzaEntity);
+    public PizzaResponseDTO updatePizza(Long id, PizzaRequestDTO pizzaRequestDTO) {
+        Pizza pizzaEntity = pizzaRepository.findById(id)
+                .orElseThrow(() -> new PizzaNotFoundException("Pizza não encontrada com ID " + id));
+
+        pizzaEntity.setName(pizzaRequestDTO.name());
+        pizzaEntity.setIngredients(pizzaRequestDTO.ingredients());
+        pizzaEntity.setImageUrl(pizzaRequestDTO.imageUrl());
+
+        Pizza updatedPizza = pizzaRepository.save(pizzaEntity);
+
+        return new PizzaResponseDTO(updatedPizza.getId(), updatedPizza.getName(), updatedPizza.getIngredients(), updatedPizza.getImageUrl());
     }
 
     public void deletePizza(Long id) {
