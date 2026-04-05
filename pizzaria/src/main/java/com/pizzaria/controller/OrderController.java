@@ -1,9 +1,13 @@
     package com.pizzaria.controller;
 
 
+    import com.pizzaria.dto.order.OrderRequestDTO;
+    import com.pizzaria.dto.order.OrderResponseDTO;
     import com.pizzaria.model.Order;
     import com.pizzaria.repository.OrderRepository;
+    import com.pizzaria.service.ClientService;
     import com.pizzaria.service.OrderService;
+    import com.pizzaria.service.PizzaService;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
@@ -16,15 +20,16 @@
     public class OrderController {
 
         private final OrderService orderService;
-
         public OrderController(OrderService orderService) {
             this.orderService = orderService;
         }
 
         @PostMapping
-        public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-            Order newOrder = orderService.createOrder(order);
-            return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
+        public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
+            OrderResponseDTO orderResponseDTO = orderService.createOrder(orderRequestDTO);
+
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(orderResponseDTO);
         }
 
         @GetMapping
