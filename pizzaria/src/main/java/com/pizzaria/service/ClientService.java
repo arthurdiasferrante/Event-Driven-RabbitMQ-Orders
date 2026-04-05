@@ -1,7 +1,7 @@
 package com.pizzaria.service;
 
-import com.pizzaria.dto.ClientRequestDTO;
-import com.pizzaria.dto.ClientResponseDTO;
+import com.pizzaria.dto.client.ClientRequestDTO;
+import com.pizzaria.dto.client.ClientResponseDTO;
 import com.pizzaria.exception.ClientNotFoundException;
 import com.pizzaria.model.Client;
 import com.pizzaria.repository.ClientRepository;
@@ -23,7 +23,7 @@ public class ClientService {
         clientEntity.setName(requestDTO.name());
         clientEntity.setAddress(requestDTO.address());
 
-        Client savedClient = clientRepository.save(clientEntity)
+        Client savedClient = clientRepository.save(clientEntity);
         return new ClientResponseDTO(savedClient.getId(), savedClient.getName(), savedClient.getAddress());
     }
 
@@ -36,14 +36,16 @@ public class ClientService {
                 .orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado com o ID " + id));
     }
 
-    public Client updateClient(Client clientBody, Long id) {
+    public ClientResponseDTO updateClient(ClientRequestDTO clientRequestDTO, Long id) {
         Client clientEntity = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado com o ID " + id));
 
-        clientEntity.setAddress(clientBody.getAddress());
-        clientEntity.setName(clientBody.getName());
 
-        return clientRepository.save(clientEntity);
+        clientEntity.setAddress(clientRequestDTO.address());
+        clientEntity.setName(clientRequestDTO.name());
+
+        Client updatedClient = clientRepository.save(clientEntity);
+        return new ClientResponseDTO(updatedClient.getId(), updatedClient.getName(), updatedClient.getAddress());
     }
 
     public void deleteClient(Long id) {

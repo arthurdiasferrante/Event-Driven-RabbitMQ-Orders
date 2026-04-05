@@ -1,7 +1,4 @@
-package com.pizzaria.dto;
+package com.pizzaria.dto.client;
 
-
-
-// nao sei oq e um record
 public record ClientRequestDTO(String name, String address) {
 }

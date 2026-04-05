@@ -1,12 +1,10 @@
 package com.pizzaria.controller;
 
-import com.pizzaria.dto.ClientRequestDTO;
-import com.pizzaria.dto.ClientResponseDTO;
+import com.pizzaria.dto.client.ClientRequestDTO;
+import com.pizzaria.dto.client.ClientResponseDTO;
 import com.pizzaria.model.Client;
-import com.pizzaria.repository.ClientRepository;
 import com.pizzaria.service.ClientService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,9 +40,9 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client newData) {
-        Client updatedClient = clientService.updateClient(newData, id);
-        return ResponseEntity.ok(updatedClient);
+    public ResponseEntity<ClientResponseDTO> updateClient(@PathVariable Long id, @RequestBody ClientRequestDTO clientRequestDTO) {
+        ClientResponseDTO responseDTO = clientService.updateClient(clientRequestDTO, id);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/{id}")
