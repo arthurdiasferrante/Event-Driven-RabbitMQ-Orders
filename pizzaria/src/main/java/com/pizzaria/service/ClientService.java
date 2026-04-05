@@ -7,6 +7,7 @@ import com.pizzaria.model.Client;
 import com.pizzaria.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,13 +28,22 @@ public class ClientService {
         return new ClientResponseDTO(savedClient.getId(), savedClient.getName(), savedClient.getAddress());
     }
 
-    public List<Client> getClients() {
-        return clientRepository.findAll();
+    public List<ClientResponseDTO> getClients() {
+        List<Client> clients = clientRepository.findAll();
+        List<ClientResponseDTO> clientResponseDTOList = new ArrayList<>();
+
+        for (Client client : clients) {
+            ClientResponseDTO clientResponseDTO = new ClientResponseDTO(client.getId(), client.getName(), client.getAddress());
+            clientResponseDTOList.add(clientResponseDTO);
+        }
+
+        return clientResponseDTOList;
     }
 
-    public Client getClientById(Long id) {
-        return clientRepository.findById(id)
+    public ClientResponseDTO getClientById(Long id) {
+        Client clientEntity = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado com o ID " + id));
+        return new ClientResponseDTO(clientEntity.getId(), clientEntity.getName(), clientEntity.getAddress());
     }
 
     public ClientResponseDTO updateClient(ClientRequestDTO clientRequestDTO, Long id) {

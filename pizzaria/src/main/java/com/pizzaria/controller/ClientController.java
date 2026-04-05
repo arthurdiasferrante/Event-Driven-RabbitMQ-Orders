@@ -29,14 +29,14 @@ public class ClientController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Client>> getClients() {
+    public ResponseEntity<List<ClientResponseDTO>> getClients() {
         return ResponseEntity.ok(clientService.getClients());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Client> getClientById(@PathVariable Long id) {
-        Client client = clientService.getClientById(id);
-        return ResponseEntity.ok(client);
+    public ResponseEntity<ClientResponseDTO> getClientById(@PathVariable Long id) {
+        ClientResponseDTO responseDTO = clientService.getClientById(id);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PutMapping("/{id}")
