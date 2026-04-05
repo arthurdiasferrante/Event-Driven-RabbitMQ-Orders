@@ -1,5 +1,7 @@
     package com.pizzaria.controller;
 
+    import com.pizzaria.dto.pizza.PizzaRequestDTO;
+    import com.pizzaria.dto.pizza.PizzaResponseDTO;
     import com.pizzaria.model.Pizza;
     import com.pizzaria.repository.PizzaRepository;
     import com.pizzaria.service.PizzaService;
@@ -20,15 +22,16 @@
         }
 
         @PostMapping
-        public ResponseEntity<Pizza> createPizza(@RequestBody Pizza pizza) {
-            Pizza newPizza = pizzaService.createPizza(pizza);
+        public ResponseEntity<PizzaResponseDTO> createPizza(@RequestBody PizzaRequestDTO pizzaRequestDTO) {
+            PizzaResponseDTO responseDTO = pizzaService.createPizza(pizzaRequestDTO);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(newPizza);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
         }
 
         @GetMapping
-        public ResponseEntity<List<Pizza>> getPizzas() {
-            return ResponseEntity.ok(pizzaService.getPizzas());
+        public ResponseEntity<List<PizzaResponseDTO>> getPizzas() {
+            List<PizzaResponseDTO> responseDTOs = pizzaService.getPizzas();
+            return ResponseEntity.ok(responseDTOs);
         }
 
         @GetMapping("/{id}")

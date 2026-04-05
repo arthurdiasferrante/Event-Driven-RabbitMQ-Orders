@@ -33,8 +33,7 @@ public class ClientService {
         List<ClientResponseDTO> clientResponseDTOList = new ArrayList<>();
 
         for (Client client : clients) {
-            ClientResponseDTO clientResponseDTO = new ClientResponseDTO(client.getId(), client.getName(), client.getAddress());
-            clientResponseDTOList.add(clientResponseDTO);
+            clientResponseDTOList.add(new ClientResponseDTO(client.getId(), client.getName(), client.getAddress()));
         }
 
         return clientResponseDTOList;
