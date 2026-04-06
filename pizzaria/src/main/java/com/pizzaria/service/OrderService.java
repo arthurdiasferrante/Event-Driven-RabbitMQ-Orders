@@ -54,21 +54,49 @@ public class OrderService {
         return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzaNames);
     }
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public List<OrderResponseDTO> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        List<OrderResponseDTO> orderResponseDTOList = new ArrayList<>();
+
+        for (Order order : orders) {
+            List<String> pizzasName = new ArrayList<>();
+
+            for (Pizza pizza : order.getPizzas()) {
+                pizzasName.add(pizza.getName());
+            }
+
+            orderResponseDTOList.add(new OrderResponseDTO(order.getId(), order.getClient().getName(), pizzasName));
+        }
+        return orderResponseDTOList;
     }
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
+    public OrderResponseDTO getOrderById(Long id) {
+        Order orderEntity = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID " + id));
+
+        List<String> pizzasName = new ArrayList<>();
+        for (Pizza pizza : orderEntity.getPizzas()) {
+            pizzasName.add(pizza.getName());
+        }
+
+        return new OrderResponseDTO(orderEntity.getId(), orderEntity.getClient().getName(), pizzasName);
     }
 
-    public Order updateOrder(Order orderBody, Long id) {
+    public OrderResponseDTO updateOrder(OrderRequestDTO orderRequestDTO, Long id) {
         Order orderEntity = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
 
-        orderEntity.setPizzas(orderBody.getPizzas());
-        return orderRepository.save(orderEntity);
+        List<Pizza> pizzaList = pizzaRepository.findAllById(orderRequestDTO.pizzaIds());
+        orderEntity.setPizzas(pizzaList);
+
+        Order savedOrder = orderRepository.save(orderEntity);
+
+        List<String> pizzasName = new ArrayList<>();
+        for (Pizza pizza : pizzaList) {
+            pizzasName.add(pizza.getName());
+        }
+
+        return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzasName);
     }
 
     public void deleteOrder(Long id) {

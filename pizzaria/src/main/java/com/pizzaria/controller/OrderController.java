@@ -33,20 +33,20 @@
         }
 
         @GetMapping
-        public ResponseEntity<List<Order>> getOrders() {
+        public ResponseEntity<List<OrderResponseDTO>> getOrders() {
             return ResponseEntity.ok(orderService.getAllOrders());
         }
 
         @GetMapping("/{id}")
-        public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-            Order order = orderService.getOrderById(id);
-            return ResponseEntity.ok(order);
+        public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable Long id) {
+            OrderResponseDTO orderResponseDTO = orderService.getOrderById(id);
+            return ResponseEntity.ok(orderResponseDTO);
         }
 
         @PutMapping("/{id}")
-        public ResponseEntity<Order> updateOrder(@RequestBody Order newOrder, @PathVariable Long id) {
-            Order updatedOrder = orderService.updateOrder(newOrder, id);
-            return ResponseEntity.ok(updatedOrder);
+        public ResponseEntity<OrderResponseDTO> updateOrder(@RequestBody OrderRequestDTO orderRequestDTO, @PathVariable Long id) {
+            OrderResponseDTO orderResponseDTO = orderService.updateOrder(orderRequestDTO, id);
+            return ResponseEntity.ok(orderResponseDTO);
         }
 
         @DeleteMapping("/{id}")
