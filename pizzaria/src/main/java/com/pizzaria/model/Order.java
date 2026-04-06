@@ -1,6 +1,7 @@
 package com.pizzaria.model;
 
 
+import com.pizzaria.enums.OrderStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,8 @@ import java.util.List;
 @Entity
 @Table(name = "tb_orders")
 public class Order {
+
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 
     public Order() {
     }
@@ -50,6 +53,14 @@ public class Order {
         this.orderAt = now;
     }
 
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
     public Client getClient() {
         return client;
     }
@@ -65,4 +76,5 @@ public class Order {
     public void setPizzas(List<Pizza> pizzas) {
         this.pizzas = pizzas;
     }
+
 }

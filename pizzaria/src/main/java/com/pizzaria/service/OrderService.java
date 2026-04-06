@@ -2,6 +2,7 @@ package com.pizzaria.service;
 
 import com.pizzaria.dto.order.OrderRequestDTO;
 import com.pizzaria.dto.order.OrderResponseDTO;
+import com.pizzaria.enums.OrderStatus;
 import com.pizzaria.exception.ClientNotFoundException;
 import com.pizzaria.exception.OrderNotFoundException;
 import com.pizzaria.exception.PizzaNotFoundException;
@@ -51,7 +52,7 @@ public class OrderService {
             pizzaNames.add(pizza.getName());
         }
 
-        return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzaNames);
+        return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzaNames, savedOrder.getOrderStatus());
     }
 
     public List<OrderResponseDTO> getAllOrders() {
@@ -65,7 +66,7 @@ public class OrderService {
                 pizzasName.add(pizza.getName());
             }
 
-            orderResponseDTOList.add(new OrderResponseDTO(order.getId(), order.getClient().getName(), pizzasName));
+            orderResponseDTOList.add(new OrderResponseDTO(order.getId(), order.getClient().getName(), pizzasName, order.getOrderStatus()));
         }
         return orderResponseDTOList;
     }
@@ -79,7 +80,7 @@ public class OrderService {
             pizzasName.add(pizza.getName());
         }
 
-        return new OrderResponseDTO(orderEntity.getId(), orderEntity.getClient().getName(), pizzasName);
+        return new OrderResponseDTO(orderEntity.getId(), orderEntity.getClient().getName(), pizzasName, orderEntity.getOrderStatus());
     }
 
     public OrderResponseDTO updateOrder(OrderRequestDTO orderRequestDTO, Long id) {
@@ -96,7 +97,7 @@ public class OrderService {
             pizzasName.add(pizza.getName());
         }
 
-        return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzasName);
+        return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzasName, savedOrder.getOrderStatus());
     }
 
     public void deleteOrder(Long id) {
@@ -104,5 +105,37 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
 
         orderRepository.delete(orderEntity);
+    }
+
+    public void markAsPreparing(Long id) {
+        Order orderEntity = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
+
+        if (orderEntity.getOrderStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException("O pedido não pode ser preparado porque o status atual é: " + orderEntity.getOrderStatus());
+        }
+
+        orderEntity.setOrderStatus(OrderStatus.PREPARING);
+        orderRepository.save(orderEntity);
+    }
+
+    public void dispatchForDelivery(Long id) {
+        Order orderEntity = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
+
+        orderEntity.setOrderStatus(OrderStatus.OUT_FOR_DELIVERY);
+        orderRepository.save(orderEntity);
+    }
+
+    public void orderDelivered(Long id) {
+        Order orderEntity = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado com ID + " + id));
+
+        if (orderEntity.getOrderStatus() != OrderStatus.OUT_FOR_DELIVERY) {
+            throw new IllegalStateException("O pedido não pode ser entregue porque ainda não saiu para entrega");
+        }
+
+        orderEntity.setOrderStatus(OrderStatus.ARRIVED);
+        orderRepository.save(orderEntity);
     }
 }
