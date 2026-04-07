@@ -1,22 +1,26 @@
 # Pizzaria Service (Portfolio)
 
-REST API for orders on **Spring Boot** + **PostgreSQL**, with **RabbitMQ** in the picture for async work once the queue side is finished.
+REST API for orders on **Spring Boot** + **PostgreSQL**, with **RabbitMQ** config started (queues/exchange/binding) for when you wire publishers and consumers.
 
-`spring-boot-starter-amqp` is already in the POM; producers/consumers and broker config are still coming. The numbered flow under *Architecture* is where things are headed, not necessarily everything that runs today.
+`RabbitMQConfig` already declares a queue (`order.v1.order-created`), a direct exchange (`meu retorno`), a binding with routing key `order.created.routingKey`, and a `Jackson2JsonMessageConverter`. Nothing sends or listens yet—no `RabbitTemplate` usage or `@RabbitListener` in the tree.
 
 ## Features (High Level)
 
 - Orders over REST
 - PostgreSQL via Spring Data JPA
-- RabbitMQ for async workflows (same idea as below—still being hooked up)
+- RabbitMQ pieces in code (see above); full async flow still TBD
 - `spring.jpa.hibernate.ddl-auto=update` in dev
 
 **What’s there on REST right now:**
 
-- **Clients** (`/clients`): CRUD
-- **Pizzas** (`/pizzas`): create/list/update/delete; ingredients list + optional `imageUrl`
-- **Orders** (`/orders`): CRUD; order has one `Client` and many `Pizzas` (`ManyToMany`, join table `order_pizza`)
-- `GlobalExceptionHandler` + `OrderNotFoundException` for missing orders
+- **Controllers → services → repositories** (no fat controllers talking straight to the DB for the main flows).
+- **DTOs** as Java `record`s under `dto/client`, `dto/pizza`, `dto/order`—HTTP payloads are not raw JPA entities.
+- **Clients** (`/clients`): CRUD; body fields `name`, `address`; responses include `id`.
+- **Pizzas** (`/pizzas`): create, list, **get by id**, update, delete; `name`, `ingredients`, `imageUrl`.
+- **Orders** (`/orders`): CRUD; body uses **`clientId`** + **`pizzaIds`** (and the `OrderRequestDTO` record also carries `orderStatus`, though create/update paths don’t apply it yet—new orders default to **`PENDING`** on the entity). Responses return **`OrderResponseDTO`**: order `id`, **client name**, **pizza names**, and **`OrderStatus`**.
+- **`OrderStatus`** enum on orders: `PENDING`, `PREPARING`, `OUT_FOR_DELIVERY`, `ARRIVED`.
+- **`GlobalExceptionHandler`** maps **`OrderNotFoundException`**, **`ClientNotFoundException`**, and **`PizzaNotFoundException`** to HTTP 404.
+- **`OrderService`** has **`markAsPreparing`**, **`dispatchForDelivery`**, and **`orderDelivered`** for status transitions—**not exposed on controllers yet** (call from code/tests or add endpoints when you want).
 
 ## Tech Stack
 
@@ -33,20 +37,21 @@ REST API for orders on **Spring Boot** + **PostgreSQL**, with **RabbitMQ** in th
 
 - Code lives under **`pizzaria/`** (artifact **`pizzariarubens`**, package **`com.pizzaria`**).
 - Entry point: `com.pizzaria.Main`.
+- Config example: `com.pizzaria.config.RabbitMQConfig`.
 
 ## Architecture Overview
 
 1. HTTP hits the API to create or change orders (and related data).
 2. Data goes to PostgreSQL.
-3. Important events (e.g. `OrderCreated`) go to RabbitMQ.
-4. Workers consume those messages (validation, fulfillment, notifications, whatever)—so slow work doesn’t block the HTTP thread.
+3. Important events (e.g. `OrderCreated`) are meant to go to RabbitMQ once publishing exists.
+4. Workers would consume those messages (validation, fulfillment, notifications, whatever)—so slow work doesn’t block the HTTP thread.
 
 ## Requirements
 
 - Java 21
 - `./mvnw` (Maven Wrapper)
 - PostgreSQL (local or reachable)
-- RabbitMQ (local or reachable) when you start using the broker
+- RabbitMQ (local or reachable) if you want the broker up; optional until you use it
 
 ## Configuration
 
@@ -61,14 +66,14 @@ Need:
 - `DB_USER`
 - `DB_PASSWORD`
 
-Add RabbitMQ settings in the same file when you wire it up; local defaults are fine for tinkering.
+Add RabbitMQ host/user/password in the same file when you go beyond defaults; Spring Boot AMQP will pick up `spring.rabbitmq.*` when you set them.
 
 Full path from clone root: `pizzaria/src/main/resources/application.properties`. Dev also turns on `spring.jpa.show-sql=true` and the Postgres dialect.
 
 ## How to Run
 
 1. PostgreSQL up; database **`pizzaria_db`** exists.
-2. RabbitMQ running if you’re exercising queues (optional until then).
+2. RabbitMQ running if you’re exercising the broker (optional until then).
 3. Shell:
 
    ```bash
@@ -98,11 +103,11 @@ Full path from clone root: `pizzaria/src/main/resources/application.properties`.
 | GET, POST | `/clients` | List / create clients |
 | GET, PUT, DELETE | `/clients/{id}` | Get, update, or delete a client |
 | GET, POST | `/pizzas` | List / create pizzas |
-| PUT, DELETE | `/pizzas/{id}` | Update or delete a pizza |
+| GET, PUT, DELETE | `/pizzas/{id}` | Get, update, or delete a pizza |
 | GET, POST | `/orders` | List / create orders |
 | GET, PUT, DELETE | `/orders/{id}` | Get, update, or delete an order |
 
-JSON matches the `Client`, `Pizza`, and `Order` entities.
+JSON shapes follow the `*RequestDTO` / `*ResponseDTO` records (see `dto/`).
 
 ## Testing
 
@@ -119,6 +124,6 @@ cd pizzaria
 
 ## Notes 
 
-- Room for more order-domain code and real RabbitMQ producers/consumers.
-- Idea: keep HTTP thin; shove slow or noisy work to the queue when it exists.
-- Clients/pizzas/orders endpoints are in; queue code is the next chunk.
+- Room for RabbitMQ producers/consumers and HTTP endpoints for order status transitions if you want them public.
+- Idea: keep HTTP thin; push slow or noisy work to the queue when publishing exists.
+- Clients/pizzas/orders are on REST with DTOs + services; queue wiring is the next chunk.
