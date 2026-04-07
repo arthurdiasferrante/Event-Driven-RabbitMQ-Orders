@@ -20,11 +20,9 @@
         }
 
         @PostMapping
-        public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
-            OrderResponseDTO orderResponseDTO = orderService.processOrder(orderRequestDTO);
-
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(orderResponseDTO);
+        public ResponseEntity<String> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
+            orderService.createOrder(orderRequestDTO);
+            return ResponseEntity.accepted().body("Pedido enviado para a cozinha!");
         }
 
         @GetMapping

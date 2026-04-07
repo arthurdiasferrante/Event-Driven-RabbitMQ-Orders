@@ -12,6 +12,7 @@ import com.pizzaria.model.Pizza;
 import com.pizzaria.repository.ClientRepository;
 import com.pizzaria.repository.OrderRepository;
 import com.pizzaria.repository.PizzaRepository;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.pizzaria.config.RabbitMQConfig.*;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,8 @@ public class OrderService {
     }
 
     // méttodo consumidor
-    public OrderResponseDTO processOrder(OrderRequestDTO orderRequestDTO) {
+    @RabbitListener(queues = "order.v1.order-created")
+    public void processOrder(OrderRequestDTO orderRequestDTO) {
         Client clientEntity = clientRepository.findById(orderRequestDTO.clientId())
                         .orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado com ID " + orderRequestDTO.clientId()));
 
@@ -45,19 +47,12 @@ public class OrderService {
         if (pizzaEntities.size() != orderRequestDTO.pizzaIds().size()) {
             throw new PizzaNotFoundException("Uma ou mais pizzas não foram encontradas");
         }
-        List<String> pizzaNames = new ArrayList<>();
 
         Order orderEntity = new Order();
         orderEntity.setClient(clientEntity);
         orderEntity.setPizzas(pizzaEntities);
 
-        Order savedOrder = orderRepository.save(orderEntity);
-
-        for (Pizza pizza : savedOrder.getPizzas()) {
-            pizzaNames.add(pizza.getName());
-        }
-
-        return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzaNames, savedOrder.getOrderStatus());
+        orderRepository.save(orderEntity);
     }
 
     public void createOrder(OrderRequestDTO requestDTO) {
