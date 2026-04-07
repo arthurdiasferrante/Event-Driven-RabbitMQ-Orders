@@ -12,6 +12,7 @@ import com.pizzaria.model.Pizza;
 import com.pizzaria.repository.ClientRepository;
 import com.pizzaria.repository.OrderRepository;
 import com.pizzaria.repository.PizzaRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ public class OrderService {
         this.pizzaRepository = pizzaRepository;
     }
 
-    public OrderResponseDTO createOrder(OrderRequestDTO orderRequestDTO) {
+    // méttodo consumidor
+    public OrderResponseDTO processOrder(OrderRequestDTO orderRequestDTO) {
         Client clientEntity = clientRepository.findById(orderRequestDTO.clientId())
                         .orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado com ID " + orderRequestDTO.clientId()));
 
@@ -53,6 +55,11 @@ public class OrderService {
         }
 
         return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzaNames, savedOrder.getOrderStatus());
+    }
+
+    // méttodo produtor, injeta ferramenta de envio e despacha DTO
+    public OrderResponseDTO createOrder(RabbitTemplate template) {
+        template = new RabbitTemplate();
     }
 
     public List<OrderResponseDTO> getAllOrders() {

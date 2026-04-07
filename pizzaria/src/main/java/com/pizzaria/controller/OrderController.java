@@ -3,17 +3,12 @@
 
     import com.pizzaria.dto.order.OrderRequestDTO;
     import com.pizzaria.dto.order.OrderResponseDTO;
-    import com.pizzaria.model.Order;
-    import com.pizzaria.repository.OrderRepository;
-    import com.pizzaria.service.ClientService;
     import com.pizzaria.service.OrderService;
-    import com.pizzaria.service.PizzaService;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
 
     import java.util.List;
-    import java.util.Optional;
 
     @RequestMapping("/orders")
     @RestController
@@ -26,7 +21,7 @@
 
         @PostMapping
         public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
-            OrderResponseDTO orderResponseDTO = orderService.createOrder(orderRequestDTO);
+            OrderResponseDTO orderResponseDTO = orderService.processOrder(orderRequestDTO);
 
 
             return ResponseEntity.status(HttpStatus.CREATED).body(orderResponseDTO);
