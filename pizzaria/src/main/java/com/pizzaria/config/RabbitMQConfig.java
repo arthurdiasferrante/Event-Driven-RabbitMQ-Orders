@@ -20,7 +20,7 @@ public class RabbitMQConfig {
 
     @Bean
     public DirectExchange directExchange() {
-        return new DirectExchange("meu retorno");
+        return new DirectExchange("order.exchange");
     }
 
     @Bean
