@@ -13,6 +13,7 @@ import com.pizzaria.repository.ClientRepository;
 import com.pizzaria.repository.OrderRepository;
 import com.pizzaria.repository.PizzaRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.pizzaria.config.RabbitMQConfig.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,12 +25,14 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ClientRepository clientRepository;
     private final PizzaRepository pizzaRepository;
+    private final RabbitTemplate rabbitTemplate;
 
 
-    public OrderService(OrderRepository orderRepository, ClientRepository clientRepository, PizzaRepository pizzaRepository) {
+    public OrderService(OrderRepository orderRepository, ClientRepository clientRepository, PizzaRepository pizzaRepository, RabbitTemplate rabbitTemplate) {
         this.orderRepository = orderRepository;
         this.clientRepository = clientRepository;
         this.pizzaRepository = pizzaRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     // méttodo consumidor
@@ -57,9 +60,8 @@ public class OrderService {
         return new OrderResponseDTO(savedOrder.getId(), savedOrder.getClient().getName(), pizzaNames, savedOrder.getOrderStatus());
     }
 
-    // méttodo produtor, injeta ferramenta de envio e despacha DTO
-    public OrderResponseDTO createOrder(RabbitTemplate template) {
-        template = new RabbitTemplate();
+    public void createOrder(OrderRequestDTO requestDTO) {
+        rabbitTemplate.convertAndSend("order.exchange", "order.created.routingKey", requestDTO);
     }
 
     public List<OrderResponseDTO> getAllOrders() {
