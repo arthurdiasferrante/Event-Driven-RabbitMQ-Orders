@@ -12,6 +12,7 @@ import com.pizzaria.model.Pizza;
 import com.pizzaria.repository.ClientRepository;
 import com.pizzaria.repository.OrderRepository;
 import com.pizzaria.repository.PizzaRepository;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.pizzaria.config.RabbitMQConfig.*;
@@ -26,14 +27,14 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ClientRepository clientRepository;
     private final PizzaRepository pizzaRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final AmqpTemplate amqpTemplate;
 
 
-    public OrderService(OrderRepository orderRepository, ClientRepository clientRepository, PizzaRepository pizzaRepository, RabbitTemplate rabbitTemplate) {
+    public OrderService(OrderRepository orderRepository, ClientRepository clientRepository, PizzaRepository pizzaRepository, AmqpTemplate amqpTemplate) {
         this.orderRepository = orderRepository;
         this.clientRepository = clientRepository;
         this.pizzaRepository = pizzaRepository;
-        this.rabbitTemplate = rabbitTemplate;
+        this.amqpTemplate = amqpTemplate;
     }
 
     // méttodo consumidor
@@ -56,7 +57,7 @@ public class OrderService {
     }
 
     public void createOrder(OrderRequestDTO requestDTO) {
-        rabbitTemplate.convertAndSend("order.exchange", "order.created.routingKey", requestDTO);
+        amqpTemplate.convertAndSend("order.exchange", "order.created.routingKey", requestDTO);
     }
 
     public List<OrderResponseDTO> getAllOrders() {
