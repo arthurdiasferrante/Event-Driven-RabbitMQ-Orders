@@ -6,5 +6,5 @@ import com.pizzaria.model.Pizza;
 
 import java.util.List;
 
-public record OrderRequestDTO(Long clientId, List<Long> pizzaIds, OrderStatus orderStatus) {
+public record OrderRequestDTO(Long clientId, List<Long> pizzaIds) {
 }

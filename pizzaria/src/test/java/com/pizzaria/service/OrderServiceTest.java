@@ -34,10 +34,20 @@ class OrderServiceTest {
     @Test
     void shouldSendMessageToRabbitWithCorrectParameters() {
         List<Long> genericList = List.of(1L, 4L, 3L);
-        OrderRequestDTO requestDTO = new OrderRequestDTO(1L, genericList, OrderStatus.PENDING);
+        OrderRequestDTO requestDTO = new OrderRequestDTO(1L, genericList);
 
         orderService.createOrder(requestDTO);
 
         Mockito.verify(amqpTemplate).convertAndSend("order.exchange", "order.created.routingKey", requestDTO);
     }
+
+    @Test
+    void processOrderShouldCreateOrderWithDTO() {
+        List<Long> genericList = List.of(1L, 4L, 3L);
+        OrderRequestDTO requestDTO = new OrderRequestDTO(1L, genericList);
+
+        orderService.processOrder(requestDTO);
+
+    }
+
 }
