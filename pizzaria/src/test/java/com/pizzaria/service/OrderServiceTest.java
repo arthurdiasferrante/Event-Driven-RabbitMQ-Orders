@@ -3,6 +3,7 @@ package com.pizzaria.service;
 import com.pizzaria.dto.order.OrderRequestDTO;
 import com.pizzaria.dto.order.OrderResponseDTO;
 import com.pizzaria.enums.OrderStatus;
+import com.pizzaria.exception.PizzaNotFoundException;
 import com.pizzaria.model.Client;
 import com.pizzaria.model.Order;
 import com.pizzaria.model.Pizza;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
@@ -43,9 +45,6 @@ class OrderServiceTest {
     PizzaRepository pizzaRepository;
     @InjectMocks
     OrderService orderService;
-
-
-
 
     @Test
     void shouldSendMessageToRabbitWithCorrectParameters() {
@@ -80,6 +79,26 @@ class OrderServiceTest {
 
         Mockito.verify(orderRepository).save(Mockito.any(Order.class));
 
+    }
+
+    @Test
+    void processOrderShouldThrownException() {
+        Pizza mozzarella = new Pizza();
+        Pizza marguerita = new Pizza();
+        List<Pizza> imcompletePizzaList = List.of(mozzarella, marguerita);
+        List<Long> genericList = List.of(1L, 1L, 3L);
+
+        Client client = new Client();
+        client.setName("java");
+        Mockito.when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        OrderRequestDTO requestDTO = new OrderRequestDTO(1L, genericList);
+
+        Mockito.when(pizzaRepository.findAllById(genericList)).thenReturn(imcompletePizzaList);
+
+        assertThrows(PizzaNotFoundException.class, () -> {
+            orderService.processOrder(requestDTO);
+        });
     }
 
 }
