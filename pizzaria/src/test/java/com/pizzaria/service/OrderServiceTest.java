@@ -3,6 +3,12 @@ package com.pizzaria.service;
 import com.pizzaria.dto.order.OrderRequestDTO;
 import com.pizzaria.dto.order.OrderResponseDTO;
 import com.pizzaria.enums.OrderStatus;
+import com.pizzaria.model.Client;
+import com.pizzaria.model.Order;
+import com.pizzaria.model.Pizza;
+import com.pizzaria.repository.ClientRepository;
+import com.pizzaria.repository.OrderRepository;
+import com.pizzaria.repository.PizzaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,17 +24,27 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
     AmqpTemplate amqpTemplate;
-
+    @Mock
+    OrderRepository orderRepository;
+    @Mock
+    ClientRepository clientRepository;
+    @Mock
+    PizzaRepository pizzaRepository;
     @InjectMocks
     OrderService orderService;
+
+
 
 
     @Test
@@ -43,10 +59,26 @@ class OrderServiceTest {
 
     @Test
     void processOrderShouldCreateOrderWithDTO() {
-        List<Long> genericList = List.of(1L, 4L, 3L);
+        Pizza mozzarella = new Pizza();
+        Pizza marguerita = new Pizza();
+        List<Pizza> pizzaList = List.of(mozzarella, mozzarella, marguerita);
+
+        List<Long> genericList = List.of(1L, 1L, 3L);
         OrderRequestDTO requestDTO = new OrderRequestDTO(1L, genericList);
 
+        Client client = new Client();
+        client.setName("java");
+
+
+        Mockito.when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        Mockito.when(pizzaRepository.findAllById(genericList)).thenReturn(pizzaList);
+
         orderService.processOrder(requestDTO);
+
+        Mockito.verify(clientRepository).findById(1L);
+        Mockito.verify(pizzaRepository).findAllById(genericList);
+
+        Mockito.verify(orderRepository).save(Mockito.any(Order.class));
 
     }
 
